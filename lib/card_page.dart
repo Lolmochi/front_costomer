@@ -144,3 +144,4 @@ class CardPage extends StatelessWidget {
     );
   }
 }
+//ทำแสกน qr code

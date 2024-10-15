@@ -14,13 +14,13 @@ class RewardsPage extends StatefulWidget {
 
 class RewardsPageState extends State<RewardsPage> {
   List<Map<String, dynamic>> rewards = [];
-  List<Map<String, dynamic>> redeemedRewards = []; // รายการรางวัลที่แลกไป
+  List<Map<String, dynamic>> redeemedRewards = []; // Redeemed rewards list
 
   @override
   void initState() {
     super.initState();
     fetchRewards();
-    fetchRedeemedRewards(); // ดึงข้อมูลรางวัลที่แลก
+    fetchRedeemedRewards(); // Fetch redeemed rewards
   }
 
   Future<void> fetchRewards() async {
@@ -38,12 +38,12 @@ class RewardsPageState extends State<RewardsPage> {
         }
       } else {
         if (mounted) {
-          showErrorSnackBar('ไม่สามารถดึงข้อมูลรางวัลได้');
+          showErrorSnackBar('Unable to fetch rewards');
         }
       }
     } catch (e) {
       if (mounted) {
-        showErrorSnackBar('เกิดข้อผิดพลาด: $e');
+        showErrorSnackBar('Error occurred: $e');
       }
     }
   }
@@ -58,7 +58,7 @@ class RewardsPageState extends State<RewardsPage> {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         if (mounted) {
-          // เรียงข้อมูลรางวัลที่แลกจากล่าสุดไปเก่าสุด
+          // Sort redeemed rewards from latest to oldest
           data.sort((a, b) => DateTime.parse(b['redemption_date'])
               .compareTo(DateTime.parse(a['redemption_date'])));
 
@@ -69,12 +69,12 @@ class RewardsPageState extends State<RewardsPage> {
         }
       } else {
         if (mounted) {
-          showErrorSnackBar('ไม่สามารถดึงข้อมูลรางวัลที่แลกได้');
+          showErrorSnackBar('Unable to fetch redeemed rewards');
         }
       }
     } catch (e) {
       if (mounted) {
-        showErrorSnackBar('เกิดข้อผิดพลาด: $e');
+        showErrorSnackBar('Error occurred: $e');
       }
     }
   }
@@ -91,13 +91,13 @@ class RewardsPageState extends State<RewardsPage> {
         if (mounted) {
           setState(() {
             widget.customer['points_balance'] =
-                data['customer']['points_balance']; // อัปเดตแต้มทั้งหมด
+                data['customer']['points_balance']; // Update total points
           });
         }
       }
     } catch (e) {
       if (mounted) {
-        showErrorSnackBar('เกิดข้อผิดพลาด: $e');
+        showErrorSnackBar('Error occurred: $e');
       }
     }
   }
@@ -119,22 +119,22 @@ class RewardsPageState extends State<RewardsPage> {
       if (response.statusCode == 200) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('แลกของรางวัลสำเร็จ')),
+            const SnackBar(content: Text('Reward redeemed successfully')),
           );
 
-          // เรียก fetch ใหม่ทั้งหมดเพื่อรีเฟรชข้อมูล
-          await fetchCustomerData(); // ดึงข้อมูลลูกค้าใหม่
+          // Fetch fresh data to refresh the UI
+          await fetchCustomerData(); // Refresh customer data
           await fetchRewards(); // Refresh rewards after redemption
           await fetchRedeemedRewards(); // Refresh redeemed rewards after redemption
         }
       } else {
         if (mounted) {
-          showErrorSnackBar('มีข้อผิดพลาดในการแลกของรางวัล');
+          showErrorSnackBar('Error redeeming reward');
         }
       }
     } catch (e) {
       if (mounted) {
-        showErrorSnackBar('เกิดข้อผิดพลาด: $e');
+        showErrorSnackBar('Error occurred: $e');
       }
     }
   }
@@ -151,39 +151,46 @@ class RewardsPageState extends State<RewardsPage> {
     final int totalPoints = widget.customer['points_balance'];
     final int pointsRequired = reward['points_required'];
 
-    if (!mounted) return; // Add a mounted check before showing the dialog
+    if (!mounted) return; // Check mounted before showing the dialog
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('รายละเอียดของรางวัล: ${reward['reward_name']}'),
+          title: Text('Reward Details: ${reward['reward_name']}'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(reward['description']),
               const SizedBox(height: 16),
-              Text('แต้มทั้งหมดของคุณ: $totalPoints'),
-              Text('แต้มที่ใช้แลก: $pointsRequired'),
+              Text('Your total points: $totalPoints'),
+              Text('Points required: $pointsRequired'),
+              const SizedBox(height: 16),
+              reward['image'] != null
+                  ? Image.network(
+                      'http://192.168.1.20:3000/uploads/${reward['image']}',
+                      height: 150,
+                    )
+                  : const Text('No image available'),
             ],
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // ปิดหน้าต่าง
+                Navigator.of(context).pop(); // Close the dialog
               },
-              child: const Text('ยกเลิก'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
-                // เรียกฟังก์ชัน redeemReward
+                // Call the redeemReward function
                 redeemReward(reward['reward_id'], pointsRequired);
                 if (mounted) {
-                  Navigator.of(context).pop(); // ปิดหน้าต่าง
+                  Navigator.of(context).pop(); // Close the dialog
                 }
               },
-              child: const Text('ยืนยันการแลก'),
+              child: const Text('Redeem'),
             ),
           ],
         );
@@ -193,50 +200,49 @@ class RewardsPageState extends State<RewardsPage> {
 
   void _showRedeemedRewards() async {
     await fetchRedeemedRewards();
-    if (!mounted) return; // Add a mounted check before showing the dialog
+    if (!mounted) return; // Check mounted before showing the dialog
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text(
-            'รางวัลที่แลก',
+            'Redeemed Rewards',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 22,
-              color: Colors.green, // เพิ่มสีเขียวให้หัวข้อ
+              color: Colors.green, // Green header
             ),
           ),
           content: redeemedRewards.isEmpty
               ? const Text(
-                  'คุณยังไม่ได้แลกรางวัลใดๆ',
-                  style: TextStyle(fontSize: 18), // เพิ่มขนาดตัวอักษร
+                  'No rewards redeemed yet',
+                  style: TextStyle(fontSize: 18), // Larger font
                 )
               : SizedBox(
                   width: double.maxFinite,
                   child: ListView.separated(
                     itemCount: redeemedRewards.length,
                     separatorBuilder: (context, index) => const Divider(
-                      color: Colors.grey, // สีของเส้นคั่น
-                      thickness: 1.0, // ความหนาของเส้นคั่น
+                      color: Colors.grey, // Divider color
+                      thickness: 1.0, // Divider thickness
                     ),
                     itemBuilder: (context, index) {
                       final redeemedReward = redeemedRewards[index];
                       final DateTime redemptionDate =
-                          DateTime.parse(redeemedReward['redemption_date']).add(
-                              const Duration(
-                                  hours: 7)); // เพิ่ม 7 ชั่วโมงสำหรับเวลาไทย
+                          DateTime.parse(redeemedReward['redemption_date'])
+                              .add(const Duration(hours: 7)); // Adjust for timezone
                       final String formattedDate =
                           DateFormat('dd/MM/yyyy HH:mm').format(redemptionDate);
 
-                      // แปลงสถานะเป็นภาษาไทย
+                      // Convert status to Thai
                       String statusThai;
                       Color statusColor;
                       if (redeemedReward['status'] == 'completed') {
-                        statusThai = 'สำเร็จ';
+                        statusThai = 'Completed';
                         statusColor = Colors.green;
                       } else if (redeemedReward['status'] == 'pending') {
-                        statusThai = 'รอดำเนินการ';
+                        statusThai = 'Pending';
                         statusColor = Colors.orange;
                       } else {
                         statusThai = redeemedReward['status'];
@@ -244,25 +250,25 @@ class RewardsPageState extends State<RewardsPage> {
                       }
 
                       return Card(
-                        elevation: 4, // เพิ่มเงาให้การ์ด
+                        elevation: 4, // Add shadow to the card
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10), // มุมโค้งมน
+                          borderRadius: BorderRadius.circular(10), // Rounded corners
                         ),
-                        color: Colors.white, // สีพื้นหลังของการ์ด
+                        color: Colors.white, // Card background color
                         margin: const EdgeInsets.symmetric(
                             vertical: 8.0, horizontal: 4.0),
                         child: ListTile(
                           leading: const Icon(
                             Icons.card_giftcard,
-                            color: Colors.orange, // เปลี่ยนสีไอคอน
-                            size: 40, // ขนาดไอคอน
+                            color: Colors.orange, // Change icon color
+                            size: 40, // Icon size
                           ),
                           title: Text(
                             redeemedReward['reward_name'],
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 18, // เพิ่มขนาดตัวอักษรหัวข้อ
-                              color: Colors.black87, // สีข้อความหัวข้อ
+                              fontSize: 18, // Larger title font
+                              color: Colors.black87, // Title text color
                             ),
                           ),
                           subtitle: Padding(
@@ -273,25 +279,23 @@ class RewardsPageState extends State<RewardsPage> {
                                 Text(
                                   'ID: ${redeemedReward['redemption_id']}',
                                   style: const TextStyle(
-                                    color: Colors.blueGrey, // สีข้อความ ID
+                                    color: Colors.blueGrey, // ID text color
                                     fontSize: 14,
-                                    fontStyle:
-                                        FontStyle.italic, // เพิ่มสไตล์ตัวเอียง
+                                    fontStyle: FontStyle.italic, // Italic style
                                   ),
                                 ),
-                                const SizedBox(
-                                    height: 4), // ระยะห่างระหว่างบรรทัด
+                                const SizedBox(height: 4), // Line spacing
                                 Text(redeemedReward['description']),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'เวลา: $formattedDate',
+                                  'Time: $formattedDate',
                                   style: const TextStyle(
-                                    color: Colors.green, // สีข้อความเวลา
+                                    color: Colors.green, // Time text color
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 Text(
-                                  'สถานะ: $statusThai',
+                                  'Status: $statusThai',
                                   style: TextStyle(
                                     color: statusColor,
                                     fontWeight: FontWeight.bold,
@@ -307,16 +311,10 @@ class RewardsPageState extends State<RewardsPage> {
                 ),
           actions: <Widget>[
             TextButton(
-              child: const Text(
-                'ปิด',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.green, // สีปุ่มปิด
-                ),
-              ),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Close the dialog
               },
+              child: const Text('Close'),
             ),
           ],
         );
@@ -330,7 +328,7 @@ class RewardsPageState extends State<RewardsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('การแลกของรางวัล'),
+        title: const Text('Reward Redemption'),
         backgroundColor: Colors.green,
       ),
       body: rewards.isEmpty
@@ -356,19 +354,26 @@ class RewardsPageState extends State<RewardsPage> {
                               ),
                             ),
                             const SizedBox(height: 8),
+                            reward['image'] != null
+                                ? Image.network(
+                                    'http://192.168.1.20:3000/uploads/${reward['image']}',
+                                    height: 150,
+                                  )
+                                : const Text('No image available'),
+                            const SizedBox(height: 8),
                             Text(reward['description']),
                             const SizedBox(height: 8),
                             Text(
-                              'แต้มที่ต้องใช้: ${reward['points_required']}',
+                              'Points required: ${reward['points_required']}',
                               style: const TextStyle(color: Colors.grey),
                             ),
                             const SizedBox(height: 8),
                             ElevatedButton(
                               onPressed: () {
                                 _showRewardDetails(
-                                    reward); // แสดงรายละเอียดของรางวัล
+                                    reward); // Show reward details
                               },
-                              child: const Text('รายละเอียด / แลก'),
+                              child: const Text('Details / Redeem'),
                             ),
                           ],
                         ),
@@ -388,8 +393,7 @@ class RewardsPageState extends State<RewardsPage> {
                     ),
                     child: IconButton(
                       icon: const Icon(Icons.star, color: Colors.white),
-                      onPressed:
-                          _showRedeemedRewards, // แสดงข้อมูลรางวัลที่แลกเมื่อกด
+                      onPressed: _showRedeemedRewards, // Show redeemed rewards
                     ),
                   ),
                 ),
@@ -405,7 +409,7 @@ class RewardsPageState extends State<RewardsPage> {
                       padding:
                           const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       child: Text(
-                        'แต้มของคุณ: $totalPoints',
+                        'Your points: $totalPoints',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
