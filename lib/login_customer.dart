@@ -12,7 +12,7 @@ class CustomerLoginPage extends StatefulWidget {
 
 class CustomerLoginPageState extends State<CustomerLoginPage> {
   final TextEditingController _customerIdController = TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
 
   // ฟังก์ชันสำหรับการ Login
@@ -21,10 +21,10 @@ class CustomerLoginPageState extends State<CustomerLoginPage> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('http://192.168.1.20:3000/login/customer'); // URL API ที่จะเรียกใช้งาน
+    final url = Uri.parse('http://192.168.1.20:3000/customer/login'); // URL API ที่จะเรียกใช้งาน
     final body = jsonEncode({
       'customer_id': _customerIdController.text,
-      'phone_number': _phoneNumberController.text, // ใช้ phone_number เป็น password
+      'password': _passwordController.text, // ใช้ phone_number เป็น password
     });
 
     try {
@@ -120,7 +120,7 @@ class CustomerLoginPageState extends State<CustomerLoginPage> {
                 ),
                 const SizedBox(height: 16),
                 TextField(
-                  controller: _phoneNumberController,
+                  controller: _passwordController,
                   keyboardType: TextInputType.phone,
                   decoration: const InputDecoration(
                     labelText: 'รหัสผ่าน',
