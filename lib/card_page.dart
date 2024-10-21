@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:barcode_widget/barcode_widget.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class CardPage extends StatelessWidget {
   final Map<String, dynamic> customer;
@@ -12,7 +12,7 @@ class CardPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'บัตรสะสมแต้ม (สมาชิกสหกรณ์การเกษตร)',
-          style: TextStyle(fontSize: 18), // ปรับขนาดตัวอักษรที่นี่
+          style: TextStyle(fontSize: 18),
         ),
         backgroundColor: Colors.green,
       ),
@@ -53,7 +53,6 @@ class CardPage extends StatelessWidget {
                   ),
                   child: Stack(
                     children: [
-                      // ID อยู่ที่มุมบนซ้าย
                       Positioned(
                         top: 0,
                         left: 0,
@@ -73,7 +72,6 @@ class CardPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      // ชื่ออยู่ตรงกลางการ์ด
                       Positioned(
                         top: 40,
                         left: 0,
@@ -90,26 +88,23 @@ class CardPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      // บาร์โค้ดอยู่ตรงกลางด้านล่าง
+                      // QR Code
                       Positioned(
-                        bottom: 70,
+                        bottom: 50,
                         left: 75,
                         right: 75,
-                        child: BarcodeWidget(
-                          barcode: Barcode.code128(),
+                        child: QrImageView(
                           data: customer['customer_id'].toString(),
-                          width: 250,
-                          height: 50,
-                          drawText: false,
+                          version: QrVersions.auto,
+                          size: 150.0,
                           backgroundColor: Colors.white,
                         ),
                       ),
-                      // เบอร์โทรอยู่ที่มุมขวาล่างใต้บาร์โค้ด
                       Positioned(
                         bottom: 0,
                         right: 0,
                         child: Container(
-                          padding: const EdgeInsets.all(4.0), // เพิ่มความชัดของขอบ
+                          padding: const EdgeInsets.all(4.0),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(5.0),
@@ -128,9 +123,9 @@ class CardPage extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 20), // เพิ่มระยะห่างระหว่างการ์ดและข้อความ
+              const SizedBox(height: 20),
               const Text(
-                '* แสดงบัตรสมาชิกนี้ต่อพนักงานมื่อทำรายการเติมน้ำมัน เพื่อรับแต้มสะสม *',
+                '* แสดงบัตรสมาชิกนี้ต่อพนักงานเมื่อทำรายการเติมน้ำมัน เพื่อรับแต้มสะสม *',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.black54,
@@ -144,4 +139,3 @@ class CardPage extends StatelessWidget {
     );
   }
 }
-//ทำแสกน qr code

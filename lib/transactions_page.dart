@@ -204,7 +204,7 @@ class TransactionsPageState extends State<TransactionsPage> {
                               Icon(Icons.star, color: Colors.yellow[300]), // ไอคอนคะแนน
                               const SizedBox(width: 8.0),
                               const Text(
-                                'แต้มสะสมทั้งหมด',
+                                'แต้มทั้งหมด',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16.0,
