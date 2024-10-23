@@ -113,17 +113,135 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('ข้อมูลส่วนตัว')),
-      body: Center(
-        child: Text(
-          'ข้อมูลส่วนตัวของ ${customer['first_name']} ${customer['last_name']}\n'
-          'หมายเลขโทรศัพท์: ${customer['phone_number']}\n'
-          'แต้มสะสม: ${customer['points_balance']}',
-          style: const TextStyle(fontSize: 18),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'ข้อมูลส่วนตัวของ ${customer['first_name']} ${customer['last_name']}',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'หมายเลขโทรศัพท์: ${customer['phone_number']}',
+              style: const TextStyle(fontSize: 18),
+            ),
+            Text(
+              'แต้มสะสม: ${customer['points_balance']}',
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 40),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ChangePasswordPage(customerId: customer['id'])), // ส่ง customerId ไปยังหน้าจอเปลี่ยนรหัสผ่าน
+                );
+              },
+              child: const Text('เปลี่ยนรหัสผ่าน'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                textStyle: const TextStyle(fontSize: 18),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
+// Change Password Page
+class ChangePasswordPage extends StatefulWidget {
+  final String customerId;
+
+  const ChangePasswordPage({super.key, required this.customerId});
+
+  @override
+  _ChangePasswordPageState createState() => _ChangePasswordPageState();
+}
+
+class _ChangePasswordPageState extends State<ChangePasswordPage> {
+  final _oldPasswordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  Future<void> _changePassword() async {
+    // ตรวจสอบว่ารหัสผ่านใหม่และยืนยันรหัสผ่านตรงกัน
+    if (_newPasswordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน')),
+      );
+      return;
+    }
+
+    // สร้างการเรียก API เพื่อเปลี่ยนรหัสผ่าน
+    final url = Uri.parse('http://192.168.1.20:3000/change_password'); // แทนที่ด้วย URL ของคุณ
+    final response = await http.post(url, body: {
+      'customerId': widget.customerId,
+      'oldPassword': _oldPasswordController.text,
+      'newPassword': _newPasswordController.text,
+    });
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('เปลี่ยนรหัสผ่านสำเร็จ')),
+      );
+      Navigator.pop(context); // กลับไปยังหน้าข้อมูลส่วนตัว
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('เปลี่ยนรหัสผ่าน')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _oldPasswordController,
+              decoration: const InputDecoration(labelText: 'รหัสผ่านเก่า'),
+              obscureText: true,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _newPasswordController,
+              decoration: const InputDecoration(labelText: 'รหัสผ่านใหม่'),
+              obscureText: true,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _confirmPasswordController,
+              decoration: const InputDecoration(labelText: 'ยืนยันรหัสผ่านใหม่'),
+              obscureText: true,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _changePassword,
+              child: const Text('เปลี่ยนรหัสผ่าน'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                textStyle: const TextStyle(fontSize: 18),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 //Settings Page
 class SettingsPage extends StatefulWidget {
