@@ -29,7 +29,7 @@ class TransactionsPageState extends State<TransactionsPage> {
   }
 
   Future<void> _fetchCustomerData() async {
-    final url = 'http://192.168.1.20:3000/customer/${widget.customerId}';
+    final url = 'http://192.168.1.34:3000/customer/${widget.customerId}';
     try {
       final response = await http.get(Uri.parse(url));
 
@@ -56,7 +56,7 @@ class TransactionsPageState extends State<TransactionsPage> {
 
   Future<void> _fetchTransactions({int page = 1}) async {
     final url =
-        'http://192.168.1.20:3000/transactions/${widget.customerId}?page=$page';
+        'http://192.168.1.34:3000/transactions/${widget.customerId}?page=$page';
     try {
       final response = await http.get(Uri.parse(url));
 
@@ -83,7 +83,7 @@ class TransactionsPageState extends State<TransactionsPage> {
   }
 
   Future<void> _fetchRedeemedRewards() async {
-    final url = 'http://192.168.1.20:3000/redeemed/${widget.customerId}';
+    final url = 'http://192.168.1.34:3000/redeemed/${widget.customerId}';
     try {
       final response = await http.get(Uri.parse(url));
 

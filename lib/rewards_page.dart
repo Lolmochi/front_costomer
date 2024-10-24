@@ -57,7 +57,7 @@ class RewardsPageState extends State<RewardsPage> {
     try {
       final response = await http.get(
         Uri.parse(
-            'http://192.168.1.20:3000/redeemed/${widget.customer['customer_id']}'),
+            'http://192.168.1.34:3000/redeemed/${widget.customer['customer_id']}'),
       );
 
       if (response.statusCode == 200) {
@@ -88,7 +88,7 @@ class RewardsPageState extends State<RewardsPage> {
     try {
       final response = await http.get(
         Uri.parse(
-            'http://192.168.1.20:3000/customer/${widget.customer['customer_id']}'),
+            'http://192.168.1.34:3000/customer/${widget.customer['customer_id']}'),
       );
 
       if (response.statusCode == 200) {
@@ -111,7 +111,7 @@ class RewardsPageState extends State<RewardsPage> {
       // รหัสนี้จะต้องใช้ redeemQuantity ด้วย
       try {
           final response = await http.post(
-              Uri.parse('http://192.168.1.20:3000/api/redeem'),
+              Uri.parse('http://192.168.1.34:3000/api/redeem'),
               headers: <String, String>{
                   'Content-Type': 'application/json; charset=UTF-8',
               },
@@ -176,7 +176,7 @@ class RewardsPageState extends State<RewardsPage> {
               const SizedBox(height: 16),
               reward['image'] != null
                   ? Image.network(
-                      'http://192.168.1.20:3000/uploads/${reward['image']}',
+                      'http://192.168.1.34:3000/uploads/${reward['image']}',
                       height: 150,
                     )
                   : const Text('No image available'),
@@ -400,7 +400,7 @@ void _showRedeemedRewards() async {
                             const SizedBox(height: 8),
                             reward['image'] != null
                                 ? Image.network(
-                                    'http://192.168.1.20:3000/uploads/${reward['image']}',
+                                    'http://192.168.1.34:3000/uploads/${reward['image']}',
                                     height: 150,
                                   )
                                 : const Text('No image available'),

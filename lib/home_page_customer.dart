@@ -17,16 +17,18 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  List<String> _newsImages = [];
 
   @override
   void initState() {
     super.initState();
     _fetchCustomerData();
+    _fetchNewsImages(); // Fetch news images on init
   }
 
   Future<void> _fetchCustomerData() async {
     final url =
-        'http://192.168.1.20:3000/customers/${widget.customer['customer_id']}';
+        'http://192.168.1.34:3000/customers/${widget.customer['customer_id']}';
     try {
       final response = await http.get(Uri.parse(url));
 
@@ -36,11 +38,25 @@ class HomePageState extends State<HomePage> {
           widget.customer['points_balance'] =
               updatedCustomer['customer']['points_balance'];
         });
-      } else {
-        // Handle errors if needed
       }
     } catch (e) {
       // Handle exceptions if needed
+    }
+  }
+
+  Future<void> _fetchNewsImages() async {
+    final url = 'http://192.168.1.34:3000/image_for_new'; // URL ของ backend
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final List newsData = json.decode(response.body);
+        setState(() {
+          _newsImages = List<String>.from(newsData.map((news) => news['image_url']).take(6));
+        });
+      }
+    } catch (e) {
+      // Error handling
+      print('Failed to load images');
     }
   }
 
@@ -75,7 +91,7 @@ class HomePageState extends State<HomePage> {
                     image: AssetImage('assets/pumpwallpaper.png'),
                     fit: BoxFit.cover,
                     colorFilter: ColorFilter.mode(
-                      Colors.black38, // Darken the background image slightly
+                      Colors.black38,
                       BlendMode.darken,
                     ),
                   ),
@@ -83,7 +99,7 @@ class HomePageState extends State<HomePage> {
               ),
               // Customer info
               Positioned(
-                top: 30, // Adjusted top position
+                top: 30,
                 left: 20,
                 right: 20,
                 child: Container(
@@ -124,12 +140,11 @@ class HomePageState extends State<HomePage> {
                           color: Colors.white70,
                         ),
                       ),
-                      const SizedBox(height: 10), // Add spacing
-                      // Points balance (ใต้ข้อมูลลูกค้า)
+                      const SizedBox(height: 10),
                       Container(
                         padding: const EdgeInsets.all(10.0),
                         decoration: BoxDecoration(
-                          color: Colors.green[700], // ใช้สีเขียวที่เข้มกว่า
+                          color: Colors.green[700],
                           borderRadius: BorderRadius.circular(15),
                           boxShadow: [
                             BoxShadow(
@@ -153,6 +168,8 @@ class HomePageState extends State<HomePage> {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 20), // เพิ่มพื้นที่ว่างก่อนแสดงภาพข่าวสาร
+                      _buildNewsImages(), // เรียกใช้ฟังก์ชันแสดงรูปภาพข่าวสาร
                     ],
                   ),
                 ),
@@ -205,6 +222,40 @@ class HomePageState extends State<HomePage> {
         unselectedItemColor: const Color.fromARGB(255, 253, 253, 253),
         backgroundColor: const Color.fromARGB(255, 54, 124, 56),
         onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  Widget _buildNewsImages() {
+    if (_newsImages.isEmpty) {
+      return const Center(
+        child: Text(
+          'No news images available.',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 200, // กำหนดความสูงของพื้นที่แสดงรูปภาพ
+      child: PageView.builder(
+        itemCount: _newsImages.length > 6 ? 6 : _newsImages.length, // จำกัดที่ 6 รูป
+        controller: PageController(viewportFraction: 0.8), // เลื่อนหน้า
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Image.network(
+                _newsImages[index],
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const Center(
+                  child: Icon(Icons.error, color: Colors.red),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

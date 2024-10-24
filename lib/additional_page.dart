@@ -180,7 +180,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     }
 
     // สร้างการเรียก API เพื่อเปลี่ยนรหัสผ่าน
-    final url = Uri.parse('http://192.168.1.20:3000/change_password'); // แทนที่ด้วย URL ของคุณ
+    final url = Uri.parse('http://192.168.1.34:3000/change_password'); // แทนที่ด้วย URL ของคุณ
     final response = await http.post(url, body: {
       'customerId': widget.customerId,
       'oldPassword': _oldPasswordController.text,
@@ -491,7 +491,7 @@ class _DividendsPageState extends State<DividendsPage> {
   }
 
   Future<void> fetchYears() async {
-    final url = Uri.parse('http://192.168.1.20:3000/annual_dividends/years'); // Replace with your server URL
+    final url = Uri.parse('http://192.168.1.34:3000/annual_dividends/years'); // Replace with your server URL
 
     try {
       final response = await http.get(url);
@@ -517,7 +517,7 @@ class _DividendsPageState extends State<DividendsPage> {
   }
 
   Future<void> fetchDividendsData(String year) async {
-      final url = Uri.parse('http://192.168.1.20:3000/annual_dividends?year=$year'); // Make sure the query string is correct
+      final url = Uri.parse('http://192.168.1.34:3000/annual_dividends?year=$year'); // Make sure the query string is correct
 
       try {
           final response = await http.get(url);

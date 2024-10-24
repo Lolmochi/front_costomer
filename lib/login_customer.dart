@@ -21,7 +21,7 @@ class CustomerLoginPageState extends State<CustomerLoginPage> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('http://192.168.1.20:3000/customer/login'); // URL API ที่จะเรียกใช้งาน
+    final url = Uri.parse('http://192.168.1.34:3000/customer/login'); // URL API ที่จะเรียกใช้งาน
     final body = jsonEncode({
       'customer_id': _customerIdController.text,
       'password': _passwordController.text, // ใช้ phone_number เป็น password
