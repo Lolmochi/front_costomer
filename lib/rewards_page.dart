@@ -27,7 +27,7 @@ class RewardsPageState extends State<RewardsPage> {
   Future<void> fetchRewards() async {
       try {
           final response =
-              await http.get(Uri.parse('http://192.168.1.20:3000/rewards'));
+              await http.get(Uri.parse('http://192.168.1.34:3000/rewards'));
 
           if (response.statusCode == 200) {
               final List<dynamic> data = json.decode(response.body);

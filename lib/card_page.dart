@@ -94,7 +94,7 @@ class CardPage extends StatelessWidget {
                         left: 75,
                         right: 75,
                         child: QrImageView(
-                          data: customer['customer_id'].toString(),
+                          data: customer['phone_number'].toString(),
                           version: QrVersions.auto,
                           size: 150.0,
                           backgroundColor: Colors.white,
